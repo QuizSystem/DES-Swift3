@@ -131,21 +131,118 @@ class DESConvert: NSObject {
         return hex
     }
     
-    class func hoanVi() {}
+    class func hoanVi(input: String, table: [Int]) -> String {
+        var output: String = ""
+        for i in 0..<table.count {
+            let j:Int = table[i] - 1
+            output += input[j]
+        }
+        return output
+    }
     
-    class func cat2() {}
+    class func cat2(input: String) -> (String, String) {
+        let start:Int = 0
+        let mid:Int = input.characters.count / 2
+        let end:Int = input.characters.count
+        let out1 = DESConvert.subString(input: input, from: start, to: mid)
+        let out2 = DESConvert.subString(input: input, from: mid, to: end)
+        return (out1, out2)
+    }
     
-    class func cat8() {}
+    class func cat8(input: String) -> [String] {
+        let length:Int = input.characters.count / 8
+        var output:[String] = Array(repeating: "", count: 8)
+        for i in 0..<8 {
+            output[i] = DESConvert.subString(input: input, from: i*length, to: i*length+length)
+        }
+        return output
+    }
     
-    class func dichTrai() {}
+    class func dichTrai(input: String, bit: Int) -> String {
+        let out1:String = DESConvert.subString(input: input, from: 0, to: bit)
+        let out2:String = DESConvert.subString(input: input, from: bit, to: input.characters.count)
+        return out2 + out1
+    }
     
-    class func dichPhai() {}
+    class func dichPhai(input: String, bit: Int) -> String {
+        let out1:String = DESConvert.subString(input: input, from: 0, to: input.characters.count - bit)
+        let out2:String = DESConvert.subString(input: input, from: input.characters.count - bit, to: input.characters.count)
+        return out2 + out1
+    }
     
-    class func phepXOR() {}
+    class func phepXOR(binA: String, binB: String) -> String {
+        let length = min(binA.characters.count, binB.characters.count)
+        var output:String = ""
+        for i in 0..<length {
+            if (binA[i] == binB[i]) {
+                output += "0"
+            } else{
+                output += "1"
+            }
+        }
+        return output
+    }
     
-    class func toArray2Chieu() {}
+    class func toArray2Chieu(tableS:[Int]) -> [[Int]]  {
+        let length:Int = tableS.count / 4
+        var k:Int = 0
+        var output = Array<Array<Int>>()
+        for i in 0..<4 {
+            for j in 0..<length {
+                output[i][j] = tableS[k]
+                k += 1
+            }
+        }
+        return output
+    }
     
-    class func binTo2Dec() {}
+    class func binTo2Dec(input: String) -> (String, String) {
+        var length = input.characters.count
+        var daucuoi = DESConvert.subString(input: input, from: 0, to: 1) + DESConvert.subString(input: input, from: length - 1, to: length)
+        var giua = DESConvert.subString(input: input, from: 1, to: length - 1)
+        // TODO: ...
+        return ("", "")
+    }
+    
+    class func subString(input: String, from: Int, to: Int) -> String {
+        let start = input.index(input.startIndex, offsetBy: from)
+        let end = input.index(input.startIndex, offsetBy: to)
+        let range = start..<end
+        return input.substring(with: range)
+    }
+    
+    class func convertKeyToHex(string: String) -> String {
+        var hex = DESConvert.stringToHex(string: string)
+        if (hex.characters.count>=16) {
+            let start = hex.index(hex.startIndex, offsetBy: 0)
+            let end = hex.index(hex.startIndex, offsetBy: 16)
+            let range = start..<end
+            hex = hex.substring(with: range)
+        } else {
+            for _ in 0..<16-hex.characters.count {
+                hex += "0"
+            }
+        }
+        return hex
+    }
+    
+    class func catNho(input: String) -> [String] {
+        let lenInput:Int = input.characters.count
+        let soKyTuThem = 16 - lenInput % 16
+        var padding:String = ""
+        if (soKyTuThem > 0 && soKyTuThem < 16) {
+            for _ in 0..<soKyTuThem {
+                padding += "0"
+            }
+        }
+        let input_padding = input + padding
+        let soKhoi = input_padding.characters.count / 16
+        var output:[String] = Array(repeating: "", count: soKhoi)
+        for i in 0..<soKhoi {
+            output[i] = DESConvert.subString(input: input_padding, from: i*16, to: i*16+16)
+        }
+        return output
+    }
     
 }
 

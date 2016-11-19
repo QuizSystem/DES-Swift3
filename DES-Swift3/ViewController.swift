@@ -12,10 +12,9 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()        
-        // MARK: Sinh Khoa
+        // MARK: Create Key
         let key_string = "thieumao"
         let key_hex = DESConvert.convertKeyToHex(string: key_string)
-        //let key_hex = "1234567890ABCD00"
         let key_bin = DESConvert.hexToBin(hex: key_hex)
         let key_pc1 = DESConvert.hoanVi(input: key_bin, table: DESTable.PC1)
         let catkey = DESConvert.cat2(input: key_pc1)
@@ -27,7 +26,6 @@ class ViewController: UIViewController {
         C[0] = catkey.0
         D[0] = catkey.1
         for i in 1...16 {
-            //print(i)
             var bit:Int = 2
             // Dich bit khi o vi tri 1,2,9,16
             if (i==1 || i==2 || i==9 || i==16) {
@@ -45,7 +43,7 @@ class ViewController: UIViewController {
             print("K[",i,"]= ", K_hex[i])
         }
         
-        // MARK: Ma Hoa
+        // MARK: Encrypt
         print("QUA TRINH MA HOA");
         let chuoi_can_ma_hoa = "Chuỗi cần mã hóa ở đây"
         let hex_chuoi_can_ma_hoa = DESConvert.stringToHex(string: chuoi_can_ma_hoa)
@@ -76,6 +74,34 @@ class ViewController: UIViewController {
             banMa = banMa + y_hex
         }
         print("Ban ma tong: ", banMa)
+        
+         // MARK: Decrypt
+        print("QUA TRINH GIAI MA");
+        let cacKhoiMaHoa = DESConvert.catNho(input: banMa)
+        let soKhoiBanMa = cacKhoiMaHoa.count
+        var banRoHex = ""
+        for j in 0..<soKhoiBanMa {
+            print("Khoi ban ma ", j+1, ":",  cacKhoiMaHoa[j])
+            let x = cacKhoiMaHoa[j]
+            let x_bin = DESConvert.hexToBin(hex: x)
+            let x_ip = DESConvert.hoanVi(input: x_bin, table: DESTable.IP)
+            let catx = DESConvert.cat2(input: x_ip)
+            var L:[String] = Array(repeating: "", count: 17)
+            var R:[String] = Array(repeating: "", count: 17)
+            L[0] = catx.0
+            R[0] = catx.1
+            for i in 1...16 {
+                L[i] = R[i-1]
+                let F = self.hamF(R: R[i-1], K: K[17-i])
+                R[i] = DESConvert.phepXOR(binA: L[i-1], binB: F)
+            }
+            let R16L16 = R[16] + L[16]
+            let y = DESConvert.hoanVi(input: R16L16, table: DESTable.IP_1)
+            let y_hex = DESConvert.binToHex(bin: y)
+            print("Giai ma: ", y_hex)
+            banRoHex = banRoHex + y_hex
+        }
+        print("Ban ro: ", banRoHex)
     }
     
     func hamF(R: String, K: String) -> String {

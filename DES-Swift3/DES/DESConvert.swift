@@ -84,7 +84,45 @@ class DESConvert: NSObject {
         return bin
     }
     
-    class func dec16ToBin() {}
+    class func dec16ToBin(dec: Int) -> String {
+        switch dec {
+        case 0:
+            return "0000"
+        case 1:
+            return "0001"
+        case 2:
+            return "0010"
+        case 3:
+            return "0011"
+        case 4:
+            return "0100"
+        case 5:
+            return "0101"
+        case 6:
+            return "0110"
+        case 7:
+            return "0111"
+        case 8:
+            return "1000"
+        case 9:
+            return "1001"
+        case 10:
+            return "1010"
+        case 11:
+            return "1011"
+        case 12:
+            return "1100"
+        case 13:
+            return "1101"
+        case 14:
+            return "1110"
+        case 15:
+            return "1111"
+        default:
+            break
+        }
+        return ""
+    }
     
     class func binToHex(bin: String) -> String {
         var hex:String = ""
@@ -183,25 +221,48 @@ class DESConvert: NSObject {
         return output
     }
     
-    class func toArray2Chieu(tableS:[Int]) -> [[Int]]  {
+    class func toArray2Chieu(hang:Int, cot:Int, tableS:[Int]) -> Int  {
         let length:Int = tableS.count / 4
         var k:Int = 0
-        var output = Array<Array<Int>>()
         for i in 0..<4 {
             for j in 0..<length {
-                output[i][j] = tableS[k]
+                if i==hang, j==cot {
+                    return tableS[k]
+                }
                 k += 1
             }
+        }
+        return 0
+    }
+    
+    class func binTo2Dec(input: String) -> (Int, Int) {
+        let length = input.characters.count
+        let daucuoi = DESConvert.subString(input: input, from: 0, to: 1) + DESConvert.subString(input: input, from: length - 1, to: length)
+        let giua = DESConvert.subString(input: input, from: 1, to: length - 1)
+        let daucuoi_dec:Int = DESConvert.binToDec(bin: daucuoi)
+        let giua_dec:Int = DESConvert.binToDec(bin: giua)
+        return (daucuoi_dec, giua_dec)
+    }
+    
+    class func binToDec(bin: String) -> Int {
+        let length:Int = bin.characters.count
+        var output:Int = 0
+        for i in 0..<length {
+            let j = length - 1 - i
+            output += Int(bin[j])!*DESConvert.haimu(somu: i)
         }
         return output
     }
     
-    class func binTo2Dec(input: String) -> (String, String) {
-        var length = input.characters.count
-        var daucuoi = DESConvert.subString(input: input, from: 0, to: 1) + DESConvert.subString(input: input, from: length - 1, to: length)
-        var giua = DESConvert.subString(input: input, from: 1, to: length - 1)
-        // TODO: ...
-        return ("", "")
+    class func haimu(somu: Int) -> Int {
+        if somu < 1 {
+            return 1
+        }
+        var output:Int = 1
+        for _ in 1...somu {
+            output *= 2
+        }
+        return output
     }
     
     class func subString(input: String, from: Int, to: Int) -> String {

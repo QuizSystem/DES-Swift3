@@ -11,7 +11,7 @@ import UIKit
 class ViewController: UIViewController {
 
     override func viewDidLoad() {
-        super.viewDidLoad()
+        super.viewDidLoad()        
         // MARK: Sinh Khoa
         let key_string = "thieumao"
         let key_hex = DESConvert.convertKeyToHex(string: key_string)
@@ -52,9 +52,10 @@ class ViewController: UIViewController {
         print(hex_chuoi_can_ma_hoa)
         var cacKhoi = DESConvert.catNho(input: hex_chuoi_can_ma_hoa)
         let soKhoi = cacKhoi.count
-        for i in 0..<soKhoi {
-            print("Khoi ", cacKhoi[i])
-            let x = cacKhoi[i]
+        var banMa = ""
+        for j in 0..<soKhoi {
+            print("Khoi ", j+1, ":",  cacKhoi[j])
+            let x = cacKhoi[j]
             let x_bin = DESConvert.hexToBin(hex: x)
             let x_ip = DESConvert.hoanVi(input: x_bin, table: DESTable.IP)
             let catx = DESConvert.cat2(input: x_ip)
@@ -62,54 +63,70 @@ class ViewController: UIViewController {
             var R:[String] = Array(repeating: "", count: 17)
             L[0] = catx.0
             R[0] = catx.1
-            print(L[0])
             for i in 1...16 {
                 L[i] = R[i-1]
-                
+                let F = self.hamF(R: R[i-1], K: K[i])
+                R[i] = DESConvert.phepXOR(binA: L[i-1], binB: F)
             }
+            let R16L16 = R[16] + L[16]
+            let y = DESConvert.hoanVi(input: R16L16, table: DESTable.IP_1)
+            let y_hex = DESConvert.binToHex(bin: y)
+            print("Ban ro: ", x)
+            print("Ban ma: ", y_hex)
+            banMa = banMa + y_hex
         }
+        print("Ban ma tong: ", banMa)
     }
     
     func hamF(R: String, K: String) -> String {
         let Rmorong = DESConvert.hoanVi(input: R, table: DESTable.E)
         let xorRK  = DESConvert.phepXOR(binA: Rmorong, binB: K)
         let catxorRK = DESConvert.cat8(input: xorRK)
-        var strSbox:String = ""
-        var B:[String] = Array(repeating: "", count: 9)
-        var BS:[String] = Array(repeating: "", count: 9)
+        var strBox:String = ""
         for i in 1...8 {
-//            $B[$i] = $catxorRK[$i-1];
-//            $BS[$i] = Sbox($B[$i], $i);
-//            $strSbox .= $BS[$i];
-            B[i] = catxorRK[i-1]
-        
+            let Bi = catxorRK[i-1]
+            let BSi = Sbox(bit: Bi, stt: i)
+            strBox = strBox + BSi
         }
-        return ""
+        let F = DESConvert.hoanVi(input: strBox, table: DESTable.P)
+        return F
     }
     
     func Sbox(bit:String, stt:Int) -> String {
-        var output = Array<Array<Int>>()
+        let dec = DESConvert.binTo2Dec(input: bit)
+        let hang = dec.0
+        let cot = dec.1
+        var output = 0
         switch stt {
         case 1:
-            output = DESConvert.toArray2Chieu(tableS: DESTable.S1)
+            output = DESConvert.toArray2Chieu(hang: hang, cot: cot, tableS: DESTable.S1)
+            break
         case 2:
-            output = DESConvert.toArray2Chieu(tableS: DESTable.S2)
+            output = DESConvert.toArray2Chieu(hang: hang, cot: cot, tableS: DESTable.S2)
+            break
         case 3:
-            output = DESConvert.toArray2Chieu(tableS: DESTable.S3)
+            output = DESConvert.toArray2Chieu(hang: hang, cot: cot, tableS: DESTable.S3)
+            break
         case 4:
-            output = DESConvert.toArray2Chieu(tableS: DESTable.S4)
+            output = DESConvert.toArray2Chieu(hang: hang, cot: cot, tableS: DESTable.S4)
+            break
         case 5:
-            output = DESConvert.toArray2Chieu(tableS: DESTable.S5)
+            output = DESConvert.toArray2Chieu(hang: hang, cot: cot, tableS: DESTable.S5)
+            break
         case 6:
-            output = DESConvert.toArray2Chieu(tableS: DESTable.S6)
+            output = DESConvert.toArray2Chieu(hang: hang, cot: cot, tableS: DESTable.S6)
+            break
         case 7:
-            output = DESConvert.toArray2Chieu(tableS: DESTable.S7)
+            output = DESConvert.toArray2Chieu(hang: hang, cot: cot, tableS: DESTable.S7)
+            break
         case 8:
-            output = DESConvert.toArray2Chieu(tableS: DESTable.S8)
+            output = DESConvert.toArray2Chieu(hang: hang, cot: cot, tableS: DESTable.S8)
+            break
         default:
             break
         }
-        return ""
+        let outputReturn = DESConvert.dec16ToBin(dec: output)
+        return outputReturn
     }
     
 }
